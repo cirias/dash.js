@@ -100,7 +100,8 @@ function StreamController() {
         preloading,
         lastPlaybackTime,
         supportsChangeType,
-        settings;
+        settings,
+        firstDVRInfoMediaType;
 
     function setup() {
         logger = Debug(context).getInstance().getLogger(instance);
@@ -991,9 +992,13 @@ function StreamController() {
 
     function onMetricAdded(e) {
         if (e.metric === MetricsConstants.DVR_INFO) {
+            if (!firstDVRInfoMediaType && (e.mediaType === Constants.VIDEO || e.mediaType === Constants.AUDIO)) {
+                firstDVRInfoMediaType = e.mediaType;
+            }
+
             //Match media type? How can DVR window be different for media types?
             //Should we normalize and union the two?
-            if (e.mediaType === Constants.AUDIO) {
+            if (e.mediaType === firstDVRInfoMediaType) {
                 mediaSourceController.setSeekable(mediaSource, e.value.range.start, e.value.range.end);
             }
         }
